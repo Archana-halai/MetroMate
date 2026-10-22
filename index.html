@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MetroMate — AI-Based Metro Tracking System</title>
+<meta name="description" content="MetroMate uses AI and ML to monitor metro trains in real time, predict arrival times and suggest multi-modal routes across metro, AMTS bus and railway networks.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070b14'/%3E%3Ccircle cx='32' cy='32' r='15' fill='none' stroke='%234cc3ff' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='5' fill='%23ff5470'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="bg-glow bg-glow-a" aria-hidden="true"></div>
+<div class="bg-glow bg-glow-b" aria-hidden="true"></div>
+
+<header class="nav">
+  <a class="brand" href="#top">
+    <span class="brand-mark"><span class="brand-ring"></span><span class="brand-dot"></span></span>
+    <span class="brand-name">Metro<span class="brand-accent">Mate</span></span>
+  </a>
+  <nav class="nav-links">
+    <a href="#map">Live Map</a>
+    <a href="#board">Departures</a>
+    <a href="#ai">AI Engine</a>
+    <a href="#multimodal">Multi-Modal</a>
+    <a href="#planner" class="nav-cta">Plan a journey</a>
+  </nav>
+  <div class="nav-right">
+    <span class="auth-chip mono" id="authChip"></span>
+    <span class="sys-status"><span class="pulse"></span>AI ONLINE</span>
+    <span class="clock mono" id="clock">--:--:--</span>
+  </div>
+</header>
+
+<div class="ticker" aria-label="Live service alerts">
+  <div class="ticker-track mono" id="ticker"></div>
+</div>
+
+<main id="top">
+
+<section class="hero">
+  <svg class="hero-lines" viewBox="0 0 1440 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <path class="hl hl-1" d="M-40 560 C 260 560 300 420 620 420 C 940 420 980 300 1480 300"/>
+    <path class="hl hl-2" d="M-40 640 C 340 640 420 500 760 500 C 1100 500 1160 380 1480 380"/>
+    <path class="hl hl-3" d="M720 -40 C 720 160 660 220 660 400 C 660 560 700 620 700 740"/>
+    <circle class="runner runner-1" r="5"/>
+    <circle class="runner runner-2" r="4"/>
+    <circle class="runner runner-3" r="4"/>
+  </svg>
+  <div class="hero-inner">
+    <p class="eyebrow mono">LIVE SIMULATION · SMART CITY TRANSIT NETWORK</p>
+    <h1>Every train. Every minute.<br><span class="grad">Predicted before it moves.</span></h1>
+    <p class="lede">MetroMate fuses real-time GPS pings with years of historical run-times, feeding machine-learning models that predict arrival times to the second — then wraps metro, AMTS bus and railway options into one seamless journey.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#map">Open the live map</a>
+      <a class="btn btn-ghost" href="#planner">Suggest my route</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><span class="stat-num mono" data-count="24" data-suffix="">0</span><span class="stat-label">trains tracked live</span></div>
+      <div class="stat"><span class="stat-num mono" data-count="96.4" data-suffix="%" data-decimals="1">0</span><span class="stat-label">on-time performance</span></div>
+      <div class="stat"><span class="stat-num mono" data-count="42" data-prefix="±" data-suffix="s">0</span><span class="stat-label">ETA accuracy window</span></div>
+      <div class="stat"><span class="stat-num mono" data-count="3" data-suffix="">0</span><span class="stat-label">transport modes unified</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="map">
+  <div class="section-head">
+    <p class="eyebrow mono">01 · LIVE NETWORK</p>
+    <h2>The whole city, <span class="grad">one pulsing map</span></h2>
+    <p class="section-sub">Trains glide along the Red and Blue corridors in real time. Tap any station to see AI-predicted arrivals, confidence scores and delay risk.</p>
+  </div>
+  <div class="map-wrap">
+    <div class="map-card glass">
+      <svg id="netmap" viewBox="0 0 1000 640" role="img" aria-label="Live metro network map"></svg>
+      <div class="map-legend">
+        <span class="legend-item"><i style="--c:#ff5470"></i>Red Line · Vastral Gam – Thaltej Gam</span>
+        <span class="legend-item"><i style="--c:#4cc3ff"></i>Blue Line · Motera Stadium – APMC</span>
+        <span class="legend-item"><i style="--c:#3ddc97"></i>On time</span>
+        <span class="legend-item"><i style="--c:#ffb454"></i>Delayed</span>
+      </div>
+    </div>
+    <aside class="panel glass" id="stationPanel">
+      <p class="panel-hint">Select a station on the map to inspect live AI predictions.</p>
+    </aside>
+  </div>
+</section>
+
+<section class="section" id="board">
+  <div class="section-head">
+    <p class="eyebrow mono">02 · DEPARTURES</p>
+    <h2>A board that <span class="grad">thinks ahead</span></h2>
+    <p class="section-sub">Predicted calls at the Gheekanta interchange, refreshed continuously from the tracking engine.</p>
+  </div>
+  <div class="board glass">
+    <div class="board-head mono"><span>Train</span><span>Line</span><span>Next call</span><span>Destination</span><span>ETA</span><span>Status</span></div>
+    <div class="board-body mono" id="boardBody"></div>
+  </div>
+</section>
+
+<section class="section" id="ai">
+  <div class="section-head">
+    <p class="eyebrow mono">03 · PREDICTION ENGINE</p>
+    <h2>How the machine <span class="grad">reads the rails</span></h2>
+    <p class="section-sub">Four stages turn raw signals into an ETA you can set your watch by.</p>
+  </div>
+  <div class="pipeline">
+    <div class="pipe-card glass reveal">
+      <span class="pipe-num mono">01</span>
+      <h3>Ingest</h3>
+      <p>GPS pings every 5 seconds, automatic fare-control gate counts, signal states and weather feed a streaming data lake.</p>
+      <ul class="pipe-tags mono"><li>GPS</li><li>AFC</li><li>WEATHER</li><li>EVENTS</li></ul>
+    </div>
+    <div class="pipe-link" aria-hidden="true"><span class="pipe-dot"></span></div>
+    <div class="pipe-card glass reveal">
+      <span class="pipe-num mono">02</span>
+      <h3>Learn</h3>
+      <p>Gradient-boosted models blend historical run-times with live speed, while a sequence model captures dwell-time drift at each platform.</p>
+      <ul class="pipe-tags mono"><li>GBRT</li><li>LSTM</li><li>FEATURES 214</li></ul>
+    </div>
+    <div class="pipe-link" aria-hidden="true"><span class="pipe-dot"></span></div>
+    <div class="pipe-card glass reveal">
+      <span class="pipe-num mono">03</span>
+      <h3>Predict</h3>
+      <p>Every train gets a rolling ETA with a confidence interval; anomalies flag delay risk minutes before passengers feel it.</p>
+      <ul class="pipe-tags mono"><li>ETA</li><li>±CI</li><li>RISK</li></ul>
+    </div>
+    <div class="pipe-link" aria-hidden="true"><span class="pipe-dot"></span></div>
+    <div class="pipe-card glass reveal">
+      <span class="pipe-num mono">04</span>
+      <h3>Act</h3>
+      <p>Push notifications, platform changes and multi-modal re-route suggestions reach riders and controllers instantly.</p>
+      <ul class="pipe-tags mono"><li>PUSH</li><li>REROUTE</li><li>OPS</li></ul>
+    </div>
+  </div>
+  <div class="ai-live glass">
+    <div class="ai-live-left">
+      <p class="eyebrow mono">MODEL TELEMETRY</p>
+      <div class="ai-meter">
+        <div class="ai-meter-row"><span>Prediction confidence</span><span class="mono" id="mConf">—</span></div>
+        <div class="bar"><i id="barConf" style="--c:#3ddc97"></i></div>
+        <div class="ai-meter-row"><span>Mean absolute error</span><span class="mono" id="mErr">—</span></div>
+        <div class="bar"><i id="barErr" style="--c:#4cc3ff"></i></div>
+        <div class="ai-meter-row"><span>Delay risk index</span><span class="mono" id="mRisk">—</span></div>
+        <div class="bar"><i id="barRisk" style="--c:#ffb454"></i></div>
+      </div>
+    </div>
+    <div class="ai-live-right mono" id="aiLog"></div>
+  </div>
+</section>
+
+<section class="section" id="multimodal">
+  <div class="section-head">
+    <p class="eyebrow mono">04 · BEYOND THE METRO</p>
+    <h2>One app, <span class="grad">every way to move</span></h2>
+    <p class="section-sub">MetroMate also surfaces the local transport layer around you: AMTS bus stops, railway stations and blended route suggestions.</p>
+  </div>
+  <div class="mode-grid">
+    <article class="mode-card glass reveal">
+      <header><span class="mode-chip" style="--c:#3ddc97">AMTS BUS</span><h3>Nearby bus stops</h3></header>
+      <ul class="near-list" id="busList"></ul>
+    </article>
+    <article class="mode-card glass reveal">
+      <header><span class="mode-chip" style="--c:#ffb454">RAILWAY</span><h3>Nearby railway stations</h3></header>
+      <ul class="near-list" id="railList"></ul>
+    </article>
+    <article class="mode-card glass reveal">
+      <header><span class="mode-chip" style="--c:#4cc3ff">AI INSIGHT</span><h3>Why multi-modal wins</h3></header>
+      <p class="mode-copy">A metro-only trip is fast but fixed. MetroMate scores every combination of metro, bus, rail and walking on time, cost and crowding — then recommends the blend that actually gets you there sooner.</p>
+      <div class="mode-facts mono">
+        <div><b>−18%</b><span>avg. door-to-door time</span></div>
+        <div><b>₹9</b><span>avg. blended fare</span></div>
+        <div><b>4.8★</b><span>rider satisfaction</span></div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="section" id="planner">
+  <div class="section-head">
+    <p class="eyebrow mono">05 · JOURNEY PLANNER</p>
+    <h2>Tell us where. <span class="grad">We'll tell you how.</span></h2>
+    <p class="section-sub">Pick any two stations — the engine returns ranked multi-modal options with fares and confidence.</p>
+  </div>
+  <form class="planner-form glass" id="plannerForm">
+    <label>From<select id="fromSel"></select></label>
+    <label>To<select id="toSel"></select></label>
+    <button class="btn btn-primary" type="submit">Suggest routes</button>
+  </form>
+  <div class="plan-results" id="planResults"></div>
+  <div class="saved glass" id="savedWrap" hidden>
+    <h3>Your saved journeys</h3>
+    <ul class="near-list" id="savedList"></ul>
+  </div>
+  <div class="saved glass" id="ticketsWrap" hidden>
+    <h3>Your tickets</h3>
+    <ul class="near-list" id="ticketsList"></ul>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <span class="brand-name">Metro<span class="brand-accent">Mate</span></span>
+    <p>AI-based metro tracking · live updates · ETA prediction · delay alerts · multi-modal routing.</p>
+    <p class="mono footer-note">Backend: Node.js REST API + SQLite (node:sqlite) — run `node server.js`, open http://localhost:3000 and sign in</p>
+    <p class="mono footer-note">Educational simulation — all trains, times and stations are illustrative demo data.</p>
+  </div>
+</footer>
+
+<div class="modal" id="payModal" hidden>
+  <div class="modal-card glass">
+    <button class="modal-x" id="payClose" type="button" aria-label="Close">×</button>
+    <div id="payFormView">
+      <h3>Secure checkout</h3>
+      <p class="pay-route mono" id="paySummary"></p>
+      <div class="tabs">
+        <button class="tab active" id="tabCard" type="button">Card</button>
+        <button class="tab" id="tabUpi" type="button">UPI</button>
+      </div>
+      <form id="payForm" novalidate>
+        <div id="cardFields">
+          <label class="field">Card number
+            <input id="cardNumber" inputmode="numeric" autocomplete="cc-number" placeholder="4242 4242 4242 4242">
+          </label>
+          <label class="field">Name on card
+            <input id="cardName" autocomplete="cc-name" placeholder="Asha Patel">
+          </label>
+          <div class="field-row">
+            <label class="field">Expiry
+              <input id="cardExpiry" autocomplete="cc-exp" placeholder="MM/YY">
+            </label>
+            <label class="field">CVC
+              <input id="cardCvc" inputmode="numeric" autocomplete="cc-csc" placeholder="123">
+            </label>
+          </div>
+        </div>
+        <div id="upiFields" hidden>
+          <label class="field">UPI ID
+            <input id="upiId" placeholder="asha@okbank">
+          </label>
+        </div>
+        <label class="field" id="guestEmailField">Email for ticket
+          <input type="email" id="payEmail" placeholder="you@metro.city">
+        </label>
+        <p class="auth-err" id="payErr" role="alert"></p>
+        <button class="btn btn-primary auth-btn" id="payBtn" type="submit">Pay</button>
+        <p class="auth-note mono">Demo gateway — no real money moves. Test card 4242 4242 4242 4242 · decline card 4000 0000 0000 0002.</p>
+      </form>
+    </div>
+    <div id="ticketView" hidden></div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ahmedabad LIVE · Naranpura ⇄ Kalupur — Metro, BRTS & AMTS</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070b14'/%3E%3Ccircle cx='32' cy='32' r='15' fill='none' stroke='%23ffb454' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='5' fill='%234cc3ff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="bg-glow bg-glow-a" aria-hidden="true"></div>
+<div class="bg-glow bg-glow-b" aria-hidden="true"></div>
+
+<!-- ================= nav ================= -->
+<nav class="nav">
+  <a class="brand" href="#top">
+    <span class="brand-mark"><span class="brand-ring"></span><span class="brand-dot"></span></span>
+    <span class="brand-name">Ahmedabad<span class="brand-accent">LIVE</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="#map">Live Map</a>
+    <a href="#board">Departures</a>
+    <a href="#planner">Plan & Pay</a>
+    <a href="#tickets">My Tickets</a>
+  </div>
+  <div class="nav-right">
+    <span class="sys-status" id="sysStatus"><i class="pulse"></i>LIVE</span>
+    <span class="clock mono" id="clock">--:--:--</span>
+    <span class="auth-chip" id="authChip"></span>
+  </div>
+</nav>
+
+<!-- ================= ticker ================= -->
+<div class="ticker"><div class="ticker-track" id="tickerTrack"></div></div>
+
+<!-- ================= hero ================= -->
+<header class="hero" id="top">
+  <div class="hero-inner">
+    <p class="eyebrow mono">REAL COORDINATES · NARANPURA 23.0455°N 72.5630°E ⇄ KALUPUR 23.0262°N 72.5856°E</p>
+    <h1>Your city moves. <span class="grad">Watch it live.</span></h1>
+    <p class="lede">Metro Blue & Red lines, Janmarg BRTS and AMTS buses — every vehicle simulated on real Ahmedabad streets, updating every few seconds. Ask for the best route from Naranpura to Kalupur, compare time & fare, and pay by scanning a UPI QR.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#planner">Find my best route</a>
+      <a class="btn btn-ghost" href="#map">Open live map</a>
+    </div>
+    <div class="stats">
+      <div class="stat glass"><span class="stat-num" data-count="34">0</span><span class="stat-label">real stations & stops</span></div>
+      <div class="stat glass"><span class="stat-num" data-count="13">0</span><span class="stat-label">live vehicles tracked</span></div>
+      <div class="stat glass"><span class="stat-num" data-count="4">0</span><span class="stat-label">corridors (Metro·BRTS·AMTS)</span></div>
+      <div class="stat glass"><span class="stat-num" id="statOnTime" data-count="100">0</span><span class="stat-label">% on-time right now</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= live map ================= -->
+<section class="section" id="map">
+  <div class="section-head reveal">
+    <p class="eyebrow mono">01 · LIVE NETWORK</p>
+    <h2>Every train & bus, <span class="grad">where it really is</span></h2>
+    <p class="section-sub">Vehicles glide along real corridors. Click any station for live departures — or flip to the Google Maps view of the Naranpura → Kalupur corridor.</p>
+  </div>
+  <div class="map-wrap reveal">
+    <div class="map-card glass">
+      <div class="map-toggle">
+        <button class="map-tab active" id="tabLeaflet" type="button">Live network</button>
+        <button class="map-tab" id="tabGmap" type="button">Google Maps view</button>
+        <a class="gmap-link mono" id="gmapOpen" target="_blank" rel="noopener"
+           href="https://www.google.com/maps/dir/Naranpura,+Ahmedabad/Kalupur,+Ahmedabad/data=!4m2!4m1!3e3">open in google maps ↗</a>
+      </div>
+      <div id="mapView"><div id="leafletMap"></div></div>
+      <div id="gmapView" hidden>
+        <iframe id="gmapFrame" title="Google Maps — Naranpura to Kalupur transit directions" loading="lazy"
+          src="about:blank"
+          data-src="https://www.google.com/maps?saddr=Naranpura,Ahmedabad&daddr=Kalupur,Ahmedabad&output=embed"></iframe>
+      </div>
+      <div class="map-legend" id="mapLegend"></div>
+    </div>
+    <aside class="panel glass" id="mapPanel">
+      <h3>Station radar</h3>
+      <p class="panel-hint">Click a station dot on the map to see its next departures in real time.</p>
+    </aside>
+  </div>
+</section>
+
+<!-- ================= departures board ================= -->
+<section class="section" id="board">
+  <div class="section-head reveal">
+    <p class="eyebrow mono">02 · DEPARTURES</p>
+    <h2>Next vehicles from <span class="grad">any station</span></h2>
+    <p class="section-sub">Pick a stop — the board refreshes itself every few seconds from the live feed.</p>
+  </div>
+  <div class="board-card glass reveal">
+    <div class="board-select">
+      <label class="mono" for="boardStation">STATION</label>
+      <select id="boardStation"></select>
+    </div>
+    <div id="boardList" class="board-list"></div>
+  </div>
+</section>
+
+<!-- ================= planner ================= -->
+<section class="section" id="planner">
+  <div class="section-head reveal">
+    <p class="eyebrow mono">03 · AI JOURNEY PLANNER</p>
+    <h2>Naranpura → Kalupur, <span class="grad">the smart way</span></h2>
+    <p class="section-sub">The engine searches every Metro / BRTS / AMTS combination — including walking interchanges — and ranks options by time, fare and transfers. Pay instantly by QR.</p>
+  </div>
+  <form class="planner-form glass reveal" id="plannerForm">
+    <label class="mono">FROM
+      <select id="planFrom"></select>
+    </label>
+    <span class="plan-arrow" aria-hidden="true">⇄</span>
+    <label class="mono">TO
+      <select id="planTo"></select>
+    </label>
+    <button class="btn btn-primary" type="submit">Find best routes</button>
+  </form>
+  <div class="plan-results" id="planResults"></div>
+</section>
+
+<!-- ================= tickets ================= -->
+<section class="section" id="tickets" hidden>
+  <div class="section-head reveal">
+    <p class="eyebrow mono">04 · YOUR WALLET</p>
+    <h2>My <span class="grad">QR tickets</span></h2>
+  </div>
+  <div id="ticketsWrap" class="tickets-wrap"></div>
+</section>
+
+<!-- ================= payment modal ================= -->
+<div class="modal" id="payModal" hidden>
+  <div class="modal-card glass">
+    <button class="modal-x" id="payClose" type="button" aria-label="Close">×</button>
+    <div id="payFlow">
+      <h2 id="payTitle">Pay & get your QR ticket</h2>
+      <p class="pay-route mono" id="payRoute"></p>
+      <p class="pay-amount">₹<span id="payFare">0</span></p>
+      <div class="tabs pay-tabs" role="tablist">
+        <button class="tab active" id="tabQR" type="button">Scan QR</button>
+        <button class="tab" id="tabCard" type="button">Card</button>
+        <button class="tab" id="tabUPI" type="button">UPI ID</button>
+      </div>
+
+      <div id="paneQR">
+        <div class="qr-box" id="qrBox"></div>
+        <p class="qr-hint mono">Scan with GPay / PhonePe / Paytm — UPI intent inside</p>
+        <p class="qr-upi mono" id="qrUpiLink"></p>
+        <button class="btn btn-pay qr-confirm" id="qrPaidBtn" type="button">I've scanned & paid ✓ (demo confirm)</button>
+      </div>
+
+      <form id="paneCard" hidden novalidate>
+        <label class="field">CARD NUMBER
+          <input id="cardNum" inputmode="numeric" autocomplete="cc-number" placeholder="4242 4242 4242 4242">
+        </label>
+        <div class="field-row">
+          <label class="field">EXPIRY
+            <input id="cardExp" autocomplete="cc-exp" placeholder="12/29">
+          </label>
+          <label class="field">CVC
+            <input id="cardCvc" inputmode="numeric" autocomplete="cc-csc" placeholder="123">
+          </label>
+        </div>
+        <label class="field">NAME ON CARD
+          <input id="cardName" autocomplete="cc-name" placeholder="RAVI MEHTA">
+        </label>
+        <button class="btn btn-pay" type="submit">Pay ₹<span class="pay-fare-mirror">0</span> by card</button>
+      </form>
+
+      <form id="paneUPI" hidden novalidate>
+        <label class="field">YOUR UPI ID
+          <input id="upiId" placeholder="asha@okbank">
+        </label>
+        <button class="btn btn-pay" type="submit">Send ₹<span class="pay-fare-mirror">0</span> collect request</button>
+      </form>
+
+      <p class="auth-err" id="payErr" role="alert"></p>
+      <p class="pay-note mono">Demo gateway — card 4000 0000 0000 0002 simulates a decline. No real money moves.</p>
+    </div>
+
+    <div id="ticketView" hidden></div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<!-- ================= footer ================= -->
+<footer class="footer">
+  <div class="footer-inner">
+    <p><b>Ahmedabad LIVE</b> — an educational transit demo on real Ahmedabad geography: Metro Blue (Thaltej ↔ Vastral Gam), Metro Red (Motera ↔ APMC via Naranpura), Janmarg BRTS and AMTS Route 4U corridors.</p>
+    <p class="footer-note mono">Vehicle positions are simulated in real time · fares follow GMRC-style slabs · payments are a sandbox QR/UPI/card gateway · not affiliated with GMRC, AMTS or Janmarg.</p>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
